@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/lerw_cpp"
+            ],
+            "defines": [],
+            "compilerPath": "/nix/store/yc9q0h72rlj98y0116c4mma6k80264mv-gcc-wrapper-13.2.0/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
