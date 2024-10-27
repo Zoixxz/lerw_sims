@@ -1,0 +1,1 @@
+/usr/bin/c++  -fopenmp CMakeFiles/lerw_sim.dir/src/random_utils.cpp.o CMakeFiles/lerw_sim.dir/src/lerw_2d.cpp.o CMakeFiles/lerw_sim.dir/src/lerw_3d.cpp.o CMakeFiles/lerw_sim.dir/src/lerw_estimation.cpp.o -o lerw_sim 

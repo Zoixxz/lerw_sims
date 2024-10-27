@@ -1,0 +1,1 @@
+/usr/bin/c++  -fopenmp CMakeFiles/test_lerw.dir/test_lerw.cpp.o CMakeFiles/test_lerw.dir/__/src/random_utils.cpp.o CMakeFiles/test_lerw.dir/__/src/lerw_2d.cpp.o CMakeFiles/test_lerw.dir/__/src/lerw_3d.cpp.o -o test_lerw  /usr/lib/x86_64-linux-gnu/libgtest.a -lpthread 

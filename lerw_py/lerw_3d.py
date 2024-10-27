@@ -25,7 +25,7 @@ def simulate_LERW_3D(R_max):
         if next_pos in visited:
             # Loop detected; erase the loop
             loop_start = visited[next_pos]
-            for pos in path[loop_start+1:]:
+            for pos in path[loop_start+1:]: 
                 del visited[pos]
             path = path[:loop_start+1]
         else:
@@ -36,7 +36,8 @@ def simulate_LERW_3D(R_max):
         current = next_pos
 
         # Check if the Euclidean distance exceeds R_max
-        distance = math.sqrt(current[0]**2 + current[1]**2 + current[2]**2)
+        # distance = abs(current[0]) + abs(current[0]) + abs(current[2])
+        distance = math.sqrt(current[0]**2 + current[1]**2 + current[2]**2)  # is this correct
         if distance >= R_max:
             break
 

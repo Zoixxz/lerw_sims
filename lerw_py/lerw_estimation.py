@@ -104,10 +104,10 @@ def run_simulation(R_values, num_trials=1000, include_2d=False):
 
 def main():
     # Example usage
-    R_values = list(range(0, 241, 20))[1:]
+    R_values = list(range(0, 301, 20))[1:]
     
     # Run simulation with only 3D
-    results = run_simulation(R_values, num_trials=500, include_2d=False)
+    results = run_simulation(R_values, num_trials=1_000, include_2d=False)
     
     # If you want to include 2D simulation, uncomment the following line:
     # results = run_simulation(R_values, num_trials=1000, include_2d=True)
