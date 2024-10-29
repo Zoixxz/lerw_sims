@@ -65,16 +65,6 @@ CMAKE_BINARY_DIR = /home/jonas/GitRepos/lerw_sims/lerw_cpp/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target test
-test:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
-	/usr/bin/ctest --force-new-ctest-process $(ARGS)
-.PHONY : test
-
-# Special rule for the target test
-test/fast: test
-.PHONY : test/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -127,37 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named lerw_sim
+# Target rules for targets named lerw_simulation
 
 # Build rule for target.
-lerw_sim: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lerw_sim
-.PHONY : lerw_sim
+lerw_simulation: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lerw_simulation
+.PHONY : lerw_simulation
 
 # fast build rule for target.
-lerw_sim/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/build
-.PHONY : lerw_sim/fast
-
-#=============================================================================
-# Target rules for targets named test_lerw
-
-# Build rule for target.
-test_lerw: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_lerw
-.PHONY : test_lerw
-
-# fast build rule for target.
-test_lerw/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test_lerw.dir/build.make tests/CMakeFiles/test_lerw.dir/build
-.PHONY : test_lerw/fast
+lerw_simulation/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/build
+.PHONY : lerw_simulation/fast
 
 src/lerw_2d.o: src/lerw_2d.cpp.o
 .PHONY : src/lerw_2d.o
 
 # target to build an object file
 src/lerw_2d.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_2d.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_2d.cpp.o
 .PHONY : src/lerw_2d.cpp.o
 
 src/lerw_2d.i: src/lerw_2d.cpp.i
@@ -165,7 +142,7 @@ src/lerw_2d.i: src/lerw_2d.cpp.i
 
 # target to preprocess a source file
 src/lerw_2d.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_2d.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_2d.cpp.i
 .PHONY : src/lerw_2d.cpp.i
 
 src/lerw_2d.s: src/lerw_2d.cpp.s
@@ -173,7 +150,7 @@ src/lerw_2d.s: src/lerw_2d.cpp.s
 
 # target to generate assembly for a file
 src/lerw_2d.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_2d.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_2d.cpp.s
 .PHONY : src/lerw_2d.cpp.s
 
 src/lerw_3d.o: src/lerw_3d.cpp.o
@@ -181,7 +158,7 @@ src/lerw_3d.o: src/lerw_3d.cpp.o
 
 # target to build an object file
 src/lerw_3d.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_3d.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_3d.cpp.o
 .PHONY : src/lerw_3d.cpp.o
 
 src/lerw_3d.i: src/lerw_3d.cpp.i
@@ -189,7 +166,7 @@ src/lerw_3d.i: src/lerw_3d.cpp.i
 
 # target to preprocess a source file
 src/lerw_3d.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_3d.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_3d.cpp.i
 .PHONY : src/lerw_3d.cpp.i
 
 src/lerw_3d.s: src/lerw_3d.cpp.s
@@ -197,7 +174,7 @@ src/lerw_3d.s: src/lerw_3d.cpp.s
 
 # target to generate assembly for a file
 src/lerw_3d.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_3d.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_3d.cpp.s
 .PHONY : src/lerw_3d.cpp.s
 
 src/lerw_estimation.o: src/lerw_estimation.cpp.o
@@ -205,7 +182,7 @@ src/lerw_estimation.o: src/lerw_estimation.cpp.o
 
 # target to build an object file
 src/lerw_estimation.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_estimation.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_estimation.cpp.o
 .PHONY : src/lerw_estimation.cpp.o
 
 src/lerw_estimation.i: src/lerw_estimation.cpp.i
@@ -213,7 +190,7 @@ src/lerw_estimation.i: src/lerw_estimation.cpp.i
 
 # target to preprocess a source file
 src/lerw_estimation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_estimation.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_estimation.cpp.i
 .PHONY : src/lerw_estimation.cpp.i
 
 src/lerw_estimation.s: src/lerw_estimation.cpp.s
@@ -221,7 +198,7 @@ src/lerw_estimation.s: src/lerw_estimation.cpp.s
 
 # target to generate assembly for a file
 src/lerw_estimation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/lerw_estimation.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/lerw_estimation.cpp.s
 .PHONY : src/lerw_estimation.cpp.s
 
 src/random_utils.o: src/random_utils.cpp.o
@@ -229,7 +206,7 @@ src/random_utils.o: src/random_utils.cpp.o
 
 # target to build an object file
 src/random_utils.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/random_utils.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/random_utils.cpp.o
 .PHONY : src/random_utils.cpp.o
 
 src/random_utils.i: src/random_utils.cpp.i
@@ -237,7 +214,7 @@ src/random_utils.i: src/random_utils.cpp.i
 
 # target to preprocess a source file
 src/random_utils.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/random_utils.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/random_utils.cpp.i
 .PHONY : src/random_utils.cpp.i
 
 src/random_utils.s: src/random_utils.cpp.s
@@ -245,7 +222,7 @@ src/random_utils.s: src/random_utils.cpp.s
 
 # target to generate assembly for a file
 src/random_utils.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/src/random_utils.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/src/random_utils.cpp.s
 .PHONY : src/random_utils.cpp.s
 
 # Help Target
@@ -256,9 +233,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... test"
-	@echo "... lerw_sim"
-	@echo "... test_lerw"
+	@echo "... lerw_simulation"
 	@echo "... src/lerw_2d.o"
 	@echo "... src/lerw_2d.i"
 	@echo "... src/lerw_2d.s"

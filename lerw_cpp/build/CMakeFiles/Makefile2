@@ -63,85 +63,42 @@ CMAKE_BINARY_DIR = /home/jonas/GitRepos/lerw_sims/lerw_cpp/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/lerw_sim.dir/all
-all: tests/all
+all: CMakeFiles/lerw_simulation.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall: tests/preinstall
+preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/lerw_sim.dir/clean
-clean: tests/clean
+clean: CMakeFiles/lerw_simulation.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Directory level rules for directory tests
-
-# Recursive "all" directory target.
-tests/all: tests/CMakeFiles/test_lerw.dir/all
-.PHONY : tests/all
-
-# Recursive "preinstall" directory target.
-tests/preinstall:
-.PHONY : tests/preinstall
-
-# Recursive "clean" directory target.
-tests/clean: tests/CMakeFiles/test_lerw.dir/clean
-.PHONY : tests/clean
-
-#=============================================================================
-# Target rules for target CMakeFiles/lerw_sim.dir
+# Target rules for target CMakeFiles/lerw_simulation.dir
 
 # All Build rule for target.
-CMakeFiles/lerw_sim.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target lerw_sim"
-.PHONY : CMakeFiles/lerw_sim.dir/all
+CMakeFiles/lerw_simulation.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target lerw_simulation"
+.PHONY : CMakeFiles/lerw_simulation.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/lerw_sim.dir/rule: cmake_check_build_system
+CMakeFiles/lerw_simulation.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles 5
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/lerw_sim.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/lerw_simulation.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles 0
-.PHONY : CMakeFiles/lerw_sim.dir/rule
+.PHONY : CMakeFiles/lerw_simulation.dir/rule
 
 # Convenience name for target.
-lerw_sim: CMakeFiles/lerw_sim.dir/rule
-.PHONY : lerw_sim
+lerw_simulation: CMakeFiles/lerw_simulation.dir/rule
+.PHONY : lerw_simulation
 
 # clean rule for target.
-CMakeFiles/lerw_sim.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_sim.dir/build.make CMakeFiles/lerw_sim.dir/clean
-.PHONY : CMakeFiles/lerw_sim.dir/clean
-
-#=============================================================================
-# Target rules for target tests/CMakeFiles/test_lerw.dir
-
-# All Build rule for target.
-tests/CMakeFiles/test_lerw.dir/all:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test_lerw.dir/build.make tests/CMakeFiles/test_lerw.dir/depend
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test_lerw.dir/build.make tests/CMakeFiles/test_lerw.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles --progress-num=6,7,8,9,10 "Built target test_lerw"
-.PHONY : tests/CMakeFiles/test_lerw.dir/all
-
-# Build rule for subdir invocation for target.
-tests/CMakeFiles/test_lerw.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles 5
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/test_lerw.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles 0
-.PHONY : tests/CMakeFiles/test_lerw.dir/rule
-
-# Convenience name for target.
-test_lerw: tests/CMakeFiles/test_lerw.dir/rule
-.PHONY : test_lerw
-
-# clean rule for target.
-tests/CMakeFiles/test_lerw.dir/clean:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/test_lerw.dir/build.make tests/CMakeFiles/test_lerw.dir/clean
-.PHONY : tests/CMakeFiles/test_lerw.dir/clean
+CMakeFiles/lerw_simulation.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/lerw_simulation.dir/build.make CMakeFiles/lerw_simulation.dir/clean
+.PHONY : CMakeFiles/lerw_simulation.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
