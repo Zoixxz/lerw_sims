@@ -1,3 +1,0 @@
-/home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles/lerw_simulation.dir
-/home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles/edit_cache.dir
-/home/jonas/GitRepos/lerw_sims/lerw_cpp/build/CMakeFiles/rebuild_cache.dir
