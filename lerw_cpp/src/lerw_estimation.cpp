@@ -1,4 +1,4 @@
-// src/lerw_estimation.cpp
+#// src/lerw_estimation.cpp
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <numeric>
 #include <iomanip>
+#include <fstream>
+#include <sstream>
 #include "utils.h"
 #include "lerw_2d.h"
 #include "lerw_3d.h"
@@ -16,20 +18,28 @@
 
 struct SimulationParams {
     bool run_2d = false;
-    std::vector<double> R_values = {256, 512, 1024, 2048, 4096};
-    int num_trials = 1000;
-    int num_threads = -1;  // -1 means use all available threads
-    int num_bootstrap = 1000;  // Number of bootstrap samples for CI
-    double confidence_level = 0.95;  // Confidence level for intervals
+    std::vector<double> R_values = {250, 500, 1000, 1500, 2000, 2500, 3000};
+    int num_trials = 25000;
+    int num_threads = -1;
+    int num_bootstrap = 25000;
+    double confidence_level = 0.95;
+    std::string output_prefix = "lerw_results";
 };
 
 struct DimensionEstimate {
-    double D;              // Point estimate
-    double ci_lower;       // Lower bound of CI
-    double ci_upper;       // Upper bound of CI
-    double r_squared;      // R² value for fit quality
+    double D;
+    double ci_lower;
+    double ci_upper;
+    double r_squared;
     std::vector<double> residuals;
     std::chrono::seconds computation_time;
+};
+
+struct SimulationResults {
+    std::vector<std::vector<size_t>> lengths;
+    std::vector<double> R_values;
+    DimensionEstimate estimate;
+    std::string dimension_label;
 };
 
 class LinearRegression {
@@ -54,7 +64,6 @@ public:
         slope = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x);
         intercept = (sum_y - slope * sum_x) / n;
         
-        // Calculate R² and residuals
         double mean_y = sum_y / n;
         double ss_tot = 0, ss_res = 0;
         residuals.resize(n);
@@ -75,6 +84,58 @@ public:
     const std::vector<double>& get_residuals() const { return residuals; }
 };
 
+void write_results_csv(const SimulationResults& results, const SimulationParams& params) {
+    std::string timestamp = std::to_string(std::time(nullptr));
+    
+    // Write path lengths
+    std::string lengths_filename = params.output_prefix + "_" + 
+                                 results.dimension_label + "_" +
+                                 timestamp + "_lengths.csv";
+    std::ofstream lengths_file(lengths_filename);
+    
+    lengths_file << "Trial";
+    for (double R : results.R_values) {
+        lengths_file << ",R=" << R;
+    }
+    lengths_file << "\n";
+    
+    size_t max_trials = 0;
+    for (const auto& R_trials : results.lengths) {
+        max_trials = std::max(max_trials, R_trials.size());
+    }
+    
+    for (size_t trial = 0; trial < max_trials; ++trial) {
+        lengths_file << trial;
+        for (const auto& R_trials : results.lengths) {
+            lengths_file << ",";
+            if (trial < R_trials.size()) {
+                lengths_file << R_trials[trial];
+            }
+        }
+        lengths_file << "\n";
+    }
+    
+    // Write statistics
+    std::string stats_filename = params.output_prefix + "_" + 
+                               results.dimension_label + "_" +
+                               timestamp + "_stats.csv";
+    std::ofstream stats_file(stats_filename);
+    
+    stats_file << "Parameter,Value\n"
+               << "Dimension D," << results.estimate.D << "\n"
+               << "CI Lower," << results.estimate.ci_lower << "\n"
+               << "CI Upper," << results.estimate.ci_upper << "\n"
+               << "R squared," << results.estimate.r_squared << "\n"
+               << "Computation time (s)," << results.estimate.computation_time.count() << "\n"
+               << "Number of trials," << params.num_trials << "\n"
+               << "Number of bootstrap samples," << params.num_bootstrap << "\n"
+               << "Confidence level," << params.confidence_level << "\n";
+    
+    std::cout << "Results written to:\n"
+              << "  " << lengths_filename << "\n"
+              << "  " << stats_filename << "\n";
+}
+
 void print_usage() {
     std::cout << "Usage: lerw_simulation [options]\n"
               << "Options:\n"
@@ -83,6 +144,7 @@ void print_usage() {
               << "  --threads N       Number of threads to use (default: all available)\n"
               << "  --bootstrap N     Number of bootstrap samples (default: 1000)\n"
               << "  --confidence C    Confidence level (default: 0.95)\n"
+              << "  --output-prefix P Output filename prefix (default: lerw_results)\n"
               << "  --r-values R1,R2,R3,...  Comma-separated list of R values\n"
               << "  --help            Show this help message\n";
 }
@@ -102,6 +164,8 @@ SimulationParams parse_args(int argc, char* argv[]) {
             params.num_bootstrap = std::stoi(argv[++i]);
         } else if (arg == "--confidence" && i + 1 < argc) {
             params.confidence_level = std::stod(argv[++i]);
+        } else if (arg == "--output-prefix" && i + 1 < argc) {
+            params.output_prefix = argv[++i];
         } else if (arg == "--r-values" && i + 1 < argc) {
             std::string r_list = argv[++i];
             params.R_values.clear();
@@ -123,14 +187,13 @@ SimulationParams parse_args(int argc, char* argv[]) {
 }
 
 template<typename Vec, typename SimFunc>
-DimensionEstimate estimate_dimension(
+SimulationResults estimate_dimension(
     const SimulationParams& params,
     SimFunc simulate_func,
     const std::string& dimension_label
 ) {
     auto start_time = std::chrono::high_resolution_clock::now();
     
-    // Store all trial lengths for each R value
     std::vector<std::vector<size_t>> all_lengths(params.R_values.size());
     for (auto& lengths : all_lengths) {
         lengths.reserve(params.num_trials);
@@ -140,7 +203,6 @@ DimensionEstimate estimate_dimension(
                            params.num_threads : 
                            omp_get_max_threads();
     
-    // Pre-create RNGs for each thread
     std::vector<std::mt19937> thread_rngs(num_threads);
     for (int i = 0; i < num_threads; i++) {
         thread_rngs[i].seed(std::random_device{}());
@@ -151,7 +213,6 @@ DimensionEstimate estimate_dimension(
     std::cout << dimension_label << " simulation starting with "
               << num_threads << " threads\n";
     
-    // Main simulation loop
     #pragma omp parallel for schedule(dynamic, 1)
     for (size_t i = 0; i < params.R_values.size(); i++) {
         const double R = params.R_values[i];
@@ -173,7 +234,6 @@ DimensionEstimate estimate_dimension(
         }
     }
 
-    // Prepare data for regression
     std::vector<double> log_R(params.R_values.size());
     std::vector<double> log_L(params.R_values.size());
     
@@ -185,11 +245,9 @@ DimensionEstimate estimate_dimension(
         log_L[i] = std::log(mean_length);
     }
     
-    // Calculate point estimate
     LinearRegression initial_fit(log_R, log_L);
     double D_point = initial_fit.get_slope();
     
-    // Bootstrap resampling for confidence interval
     std::vector<double> bootstrap_estimates(params.num_bootstrap);
     std::mt19937 bootstrap_rng(std::random_device{}());
     
@@ -217,7 +275,6 @@ DimensionEstimate estimate_dimension(
         bootstrap_estimates[b] = bootstrap_fit.get_slope();
     }
     
-    // Calculate confidence interval
     std::sort(bootstrap_estimates.begin(), bootstrap_estimates.end());
     int lower_idx = (params.num_bootstrap * (1 - params.confidence_level) / 2);
     int upper_idx = params.num_bootstrap - lower_idx - 1;
@@ -225,32 +282,11 @@ DimensionEstimate estimate_dimension(
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
     
-    // Print detailed results
-    std::cout << "\n" << dimension_label << " Results:\n"
-              << "Estimated dimension D: " << D_point 
-              << " (" << (params.confidence_level * 100) << "% CI: "
-              << bootstrap_estimates[lower_idx] << " - "
-              << bootstrap_estimates[upper_idx] << ")\n"
-              << "R² value: " << initial_fit.get_r_squared() << "\n"
-              << "Computation time: " << duration.count() << " seconds\n\n"
-              << "Detailed statistics for each R value:\n";
-              
-    for (size_t i = 0; i < params.R_values.size(); i++) {
-        double mean = std::accumulate(all_lengths[i].begin(),
-                                    all_lengths[i].end(), 0.0) /
-                     all_lengths[i].size();
-        double variance = 0;
-        for (const auto& len : all_lengths[i]) {
-            variance += (len - mean) * (len - mean);
-        }
-        variance /= (all_lengths[i].size() - 1);
-        
-        std::cout << "R = " << std::setw(6) << params.R_values[i]
-                  << ": mean length = " << std::setw(10) << mean
-                  << ", std dev = " << std::setw(10) << std::sqrt(variance) << "\n";
-    }
-    
-    return DimensionEstimate{
+    SimulationResults results;
+    results.lengths = std::move(all_lengths);
+    results.R_values = params.R_values;
+    results.dimension_label = dimension_label;
+    results.estimate = DimensionEstimate{
         D_point,
         bootstrap_estimates[lower_idx],
         bootstrap_estimates[upper_idx],
@@ -258,6 +294,20 @@ DimensionEstimate estimate_dimension(
         initial_fit.get_residuals(),
         duration
     };
+    
+    // Print results summary
+    std::cout << "\n" << dimension_label << " Results:\n"
+              << "Estimated dimension D: " << D_point 
+              << " (" << (params.confidence_level * 100) << "% CI: "
+              << bootstrap_estimates[lower_idx] << " - "
+              << bootstrap_estimates[upper_idx] << ")\n"
+              << "R² value: " << initial_fit.get_r_squared() << "\n"
+              << "Computation time: " << duration.count() << " seconds\n";
+    
+    // Write results to CSV files
+    write_results_csv(results, params);
+    
+    return results;
 }
 
 int main(int argc, char* argv[]) {
@@ -270,6 +320,7 @@ int main(int argc, char* argv[]) {
               << "Confidence level: " << (params.confidence_level * 100) << "%\n"
               << "Number of threads: " << (params.num_threads > 0 ? 
                                          std::to_string(params.num_threads) : "auto") << "\n"
+              << "Output prefix: " << params.output_prefix << "\n"
               << "R values: ";
     for (size_t i = 0; i < params.R_values.size(); i++) {
         std::cout << params.R_values[i];
@@ -279,17 +330,9 @@ int main(int argc, char* argv[]) {
 
     if (params.run_2d) {
         auto results_2d = estimate_dimension<Vec2D>(params, simulate_LERW_2D, "2D");
-        std::cout << "\nFinal 2D Results Summary:\n"
-                  << "D = " << results_2d.D << " ± "
-                  << (results_2d.ci_upper - results_2d.ci_lower) / 2
-                  << " (R² = " << results_2d.r_squared << ")\n";
     }
     
     auto results_3d = estimate_dimension<Vec3D>(params, simulate_LERW_3D, "3D");
-    std::cout << "\nFinal 3D Results Summary:\n"
-              << "D = " << results_3d.D << " ± "
-              << (results_3d.ci_upper - results_3d.ci_lower) / 2
-              << " (R² = " << results_3d.r_squared << ")\n";
 
     return 0;
 }

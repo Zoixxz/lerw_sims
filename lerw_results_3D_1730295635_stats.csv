@@ -1,0 +1,9 @@
+Parameter,Value
+Dimension D,1.62763
+CI Lower,1.613
+CI Upper,1.64107
+R squared,0.999999
+Computation time (s),661
+Number of trials,2000
+Number of bootstrap samples,2000
+Confidence level,0.95
