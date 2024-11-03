@@ -18,10 +18,10 @@
 
 struct SimulationParams {
     bool run_2d = false;
-    std::vector<double> R_values = {250, 500, 1000, 1500, 2000, 2500, 3000};
-    int num_trials = 25000;
-    int num_threads = -1;
-    int num_bootstrap = 25000;
+    std::vector<double> R_values = {5000, 10000};
+    int num_trials = 24;
+    int num_threads = 2;
+    int num_bootstrap = 24;
     double confidence_level = 0.95;
     std::string output_prefix = "lerw_results";
 };
@@ -87,7 +87,6 @@ public:
 void write_results_csv(const SimulationResults& results, const SimulationParams& params) {
     std::string timestamp = std::to_string(std::time(nullptr));
     
-    // Write path lengths
     std::string lengths_filename = params.output_prefix + "_" + 
                                  results.dimension_label + "_" +
                                  timestamp + "_lengths.csv";
@@ -304,7 +303,6 @@ SimulationResults estimate_dimension(
               << "R² value: " << initial_fit.get_r_squared() << "\n"
               << "Computation time: " << duration.count() << " seconds\n";
     
-    // Write results to CSV files
     write_results_csv(results, params);
     
     return results;
