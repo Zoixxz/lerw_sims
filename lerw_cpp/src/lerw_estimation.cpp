@@ -155,7 +155,7 @@ SimulationParams parse_args(int argc, char* argv[]) {
         std::string arg = argv[i];
         if (arg == "--2d") {
             params.run_2d = true;
-        } else if (arg == "--trials" && i + 1 < argc) {
+        } else if (arg == "--trials" && i + 1 < argc) {Computation time: 216 seconds
             params.num_trials = std::stoi(argv[++i]);
         } else if (arg == "--threads" && i + 1 < argc) {
             params.num_threads = std::stoi(argv[++i]);
@@ -212,19 +212,18 @@ SimulationResults estimate_dimension(
     std::cout << dimension_label << " simulation starting with "
               << num_threads << " threads\n";
     
-    #pragma omp parallel for schedule(dynamic, 1)
     for (size_t i = 0; i < params.R_values.size(); i++) {
         const double R = params.R_values[i];
         const int thread_id = omp_get_thread_num();
         std::vector<size_t> thread_lengths;
         thread_lengths.reserve(params.num_trials);
         
+        #pragma omp parallel for schedule(dynamic, 1)
         for (int j = 0; j < params.num_trials; j++) {
             auto path = simulate_func(R, thread_rngs[thread_id]);
             thread_lengths.push_back(path.size());
         }
         
-        #pragma omp critical
         {
             all_lengths[i] = std::move(thread_lengths);
             std::cout << dimension_label << " R = " << R 
