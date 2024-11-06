@@ -1,8 +1,5 @@
 import numpy as np
 from scipy import stats  
-import random
-import math
-from collections import defaultdict
 import time
 import multiprocessing
 from lerw_3d import *
@@ -65,9 +62,9 @@ def estimate_exponent_with_errors(R_values, avg_lengths, n_bootstrap=1000):
     
     Parameters:
     -----------
-    R_values : array-like
+    R_values : list
         The R values used in the simulation
-    avg_lengths : array-like
+    avg_lengths : list
         The corresponding average lengths
     n_bootstrap : int
         Number of bootstrap samples for error estimation
@@ -127,6 +124,7 @@ def plot_results_with_errors(R_values, avg_lengths, dimension, results):
         fit_line = np.exp(np.polyval(
             [results['D'], np.log(avg_lengths[0]) - results['D'] * np.log(R_values[0])],
             np.log(R_values)))
+
         plt.loglog(R_values, fit_line, '--',
                   label=f'Fit: D={results["D"]:.3f}±{results["std_error"]:.3f}')
         
@@ -136,11 +134,12 @@ def plot_results_with_errors(R_values, avg_lengths, dimension, results):
                 f'R² = {results["r_squared"]:.3f}',
                 transform=plt.gca().transAxes,
                 verticalalignment='top',
+                horizontalalignment='left',
                 bbox=dict(facecolor='white', alpha=0.8))
         
         plt.xlabel('R')
         plt.ylabel('Average Length L')
-        plt.legend()
+        plt.legend(loc='lower right')
         plt.grid(True, which="both", ls="-", alpha=0.2)
         plt.show()
         
@@ -204,10 +203,10 @@ def run_simulation(R_values, num_trials=1000, include_2d=False, plot=False):
 @timer
 def main():
     # Example usage
-    R_values = [40, 80, 160, 320, 500, 1000]
+    R_values = [40, 80, 160, 320]
     
     # Run simulation with only 3D
-    results = run_simulation(R_values, num_trials=1000, include_2d=False, plot=False)
+    results = run_simulation(R_values, num_trials=1000, include_2d=False, plot=True)
     # results = run_simulation(R_values, num_trials=1000, include_2d=True)
 
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(LERW_Simulation CXX)
 
-# Enable C++17 features
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
