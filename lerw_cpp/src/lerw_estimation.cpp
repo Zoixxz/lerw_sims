@@ -155,7 +155,7 @@ SimulationParams parse_args(int argc, char* argv[]) {
         std::string arg = argv[i];
         if (arg == "--2d") {
             params.run_2d = true;
-        } else if (arg == "--trials" && i + 1 < argc) {Computation time: 216 seconds
+        } else if (arg == "--trials" && i + 1 < argc) {
             params.num_trials = std::stoi(argv[++i]);
         } else if (arg == "--threads" && i + 1 < argc) {
             params.num_threads = std::stoi(argv[++i]);
