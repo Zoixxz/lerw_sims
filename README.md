@@ -1,6 +1,6 @@
 # Loop-Erased Random Walk (LERW) Simulation
 
-This project provides implementations of Loop-Erased Random Walk simulations in both 2D and 3D, with some parallel processing.
+This project provides implementations of Loop-Erased Random Walk simulations in both 2D and 3D, with some parallel processing. For easier tinkering there is also a python version.
 
 ## Building the C++ Project
 ### Prerequisites
