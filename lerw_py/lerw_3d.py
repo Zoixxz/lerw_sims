@@ -3,6 +3,7 @@ import math
 
 # file contains function for the simulation of a single LERW path in 3d (on Z^3)
 
+
 def simulate_LERW_3D(L_max):
     visited = {}
     path = []

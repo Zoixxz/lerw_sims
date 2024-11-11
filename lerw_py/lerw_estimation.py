@@ -2,8 +2,10 @@ import numpy as np
 from scipy import stats  
 import time
 import multiprocessing
-from lerw_3d import *
-from lerw_2d import * # Optional import for when include_2d is True
+# from lerw_3d import *
+# from lerw_2d import * # Optional import for when include_2d is True
+from lerw import LERW
+from lerw_gpu import simulate_lerw_gpu
 import time
 from functools import wraps
 
@@ -17,13 +19,12 @@ def timer(func):
         return result
     return wrapper
 
-def worker_3D(_):
-    path = simulate_LERW_3D(R)
-    return len(path)
+# def worker_3D(R):
+#     return lambda: len(simulate_LERW_3D(R))
 
-def worker_2D(_):
-    path = simulate_LERW_2D(R)
-    return len(path)
+# def worker_2D(R):
+#     path = simulate_LERW_2D(R)
+#     return len(path)
 
 def estimate_exponent(R_values, avg_lengths):
     log_R = np.log(R_values)
@@ -31,9 +32,11 @@ def estimate_exponent(R_values, avg_lengths):
     D, C = np.polyfit(log_R, log_L, 1)
     return D
 
-def simulate_parallel(R, num_trials, worker_func):
+def simulate_parallel(R, num_trials, dim):
+    lerw = LERW(R, dim=dim)
+
     with multiprocessing.Pool() as pool:
-        lengths = pool.map(worker_func, range(num_trials))
+        lengths = pool.map(lerw.get_path_len, range(num_trials))
         total_length = sum(lengths)
         avg_length = total_length / num_trials
     return avg_length
@@ -47,7 +50,7 @@ def plot_results(R_values, avg_lengths, dimension, D):
         plt.loglog(R_values, 
                   np.exp(np.polyval([D, np.log(avg_lengths[0]) - D * np.log(R_values[0])], 
                   np.log(R_values))), '--', 
-                  label=f'Fit: D={D:.3f}')
+                  label=f'Fit: D={D:.6f}')
         plt.xlabel('R')
         plt.ylabel('Average Length L')
         plt.legend()
@@ -77,11 +80,11 @@ def estimate_exponent_with_errors(R_values, avg_lengths, n_bootstrap=1000):
     log_R = np.log(R_values)
     log_L = np.log(avg_lengths)
     
-    # Regular linear regression with stats
-    slope, intercept, r_value, p_value, std_err = stats.linregress(log_R, log_L)
+    stat_results = stats.linregress(log_R, log_L)
     
     # Bootstrap estimation
     bootstrap_slopes = []
+    bootstrap_intercepts = []
     n_points = len(R_values)
     
     for _ in range(n_bootstrap):
@@ -91,19 +94,26 @@ def estimate_exponent_with_errors(R_values, avg_lengths, n_bootstrap=1000):
         boot_log_L = log_L[indices]
         
         # Fit on bootstrapped sample
-        boot_slope, _ = np.polyfit(boot_log_R, boot_log_L, 1)
+        boot_slope, boot_intercept = np.polyfit(boot_log_R, boot_log_L, 1)
         bootstrap_slopes.append(boot_slope)
+        bootstrap_intercepts.append(boot_intercept)
     
     # Calculate bootstrap confidence intervals
     bootstrap_slopes = np.array(bootstrap_slopes)
-    confidence_intervals = np.percentile(bootstrap_slopes, [2.5, 97.5])
+    bootstrap_intercepts = np.array(bootstrap_intercepts)
+    confidence_intervals_slope = np.percentile(bootstrap_slopes, [2.5, 97.5])
+    confidence_intervals_intercept = np.percentile(bootstrap_intercepts, [2.5, 97.5])
     
     return {
-        'D': slope,
-        'std_error': std_err,
-        'bootstrap_ci': confidence_intervals,
-        'r_squared': r_value**2,
-        'bootstrap_std': np.std(bootstrap_slopes)
+        'D': stat_results.slope,
+        'a': stat_results.intercept,
+        'std_error_slope': stat_results.stderr,
+        'std_error_intercept': stat_results.intercept_stderr,
+        'bootstrap_ci_slope': confidence_intervals_slope,
+        'bootstrap_ci_intercept': confidence_intervals_intercept,
+        'r_squared': stat_results.rvalue**2,
+        'bootstrap_std_slope': np.std(bootstrap_slopes),
+        'bootstrap_std_intercept': np.std(bootstrap_intercepts)
     }
 
 def plot_results_with_errors(R_values, avg_lengths, dimension, results):
@@ -126,12 +136,12 @@ def plot_results_with_errors(R_values, avg_lengths, dimension, results):
             np.log(R_values)))
 
         plt.loglog(R_values, fit_line, '--',
-                  label=f'Fit: D={results["D"]:.3f}±{results["std_error"]:.3f}')
+                  label=f'Fit: D={results["D"]:.6f}±{results["std_error_slope"]:.6f}')
         
         # Add bootstrap CI information to plot
         plt.text(0.05, 0.95, 
-                f'95% Bootstrap CI: [{results["bootstrap_ci"][0]:.3f}, {results["bootstrap_ci"][1]:.3f}]\n' +
-                f'R² = {results["r_squared"]:.3f}',
+                f'95% Bootstrap CI: [{results["bootstrap_ci_slope"][0]:.6f}, {results["bootstrap_ci_slope"][1]:.6f}]\n' +
+                f'R² = {results["r_squared"]:.6f}',
                 transform=plt.gca().transAxes,
                 verticalalignment='top',
                 horizontalalignment='left',
@@ -159,17 +169,18 @@ def run_simulation(R_values, num_trials=1000, include_2d=False, plot=False):
     # 3D Simulation
     print("\nSimulating LERW in 3D...")
     for R in R_values:
-        globals()['R'] = R
-        avg_length = simulate_parallel(R, num_trials, worker_3D)
+        # globals()['R'] = R
+        # avg_length = simulate_parallel(R, num_trials, dim=3)
+        avg_length = simulate_lerw_gpu(L=R, num_trials=num_trials)
         results['3D']['avg_lengths'].append(avg_length)
-        print(f"R = {R}, Avg Length = {avg_length}")
+        # print(f"R = {R}, Avg Length = {avg_length}")
     
     # Optional 2D Simulation
     if include_2d:
         print("\nSimulating LERW in 2D...")
         for R in R_values:
             globals()['R'] = R
-            avg_length = simulate_parallel(R, num_trials, worker_2D)
+            avg_length = simulate_parallel(R, num_trials, '2D')
             results['2D']['avg_lengths'].append(avg_length)
             print(f"R = {R}, Avg Length = {avg_length}")
     
@@ -180,17 +191,20 @@ def run_simulation(R_values, num_trials=1000, include_2d=False, plot=False):
         np.array(results['3D']['avg_lengths'])
     )
     print(f"3D Results:")
-    print(f"D = {results['3D']['stats']['D']:.3f} ± {results['3D']['stats']['std_error']:.3f}")
-    print(f"95% Bootstrap CI: [{results['3D']['stats']['bootstrap_ci'][0]:.3f}, "
-          f"{results['3D']['stats']['bootstrap_ci'][1]:.3f}]")
-    print(f"R² = {results['3D']['stats']['r_squared']:.3f}")
+    print(f"D (slope) = {results['3D']['stats']['D']:.6f} ± {results['3D']['stats']['std_error_slope']:.6f}")
+    print(f"a (intercept) = {results['3D']['stats']['a']:.6f} ± {results['3D']['stats']['std_error_intercept']:.6f}")
+    print(f"D 95% Bootstrap CI: [{results['3D']['stats']['bootstrap_ci_slope'][0]:.6f}, "
+          f"{results['3D']['stats']['bootstrap_ci_slope'][1]:.6f}]")
+    print(f"a 95% Bootstrap CI: [{results['3D']['stats']['bootstrap_ci_intercept'][0]:.6f}, "
+          f"{results['3D']['stats']['bootstrap_ci_intercept'][1]:.6f}]")
+    print(f"R² = {results['3D']['stats']['r_squared']:.6f}")
     
     if include_2d:
         results['2D']['stats'] = estimate_exponent_with_errors(
             np.array(R_values), 
             np.array(results['2D']['avg_lengths'])
         )
-        print(f"R² = {results['2D']['stats']['r_squared']:.3f}")
+        print(f"R² = {results['2D']['stats']['r_squared']:.6f}")
     
     # Plotting with error information
     if plot:
@@ -203,10 +217,11 @@ def run_simulation(R_values, num_trials=1000, include_2d=False, plot=False):
 @timer
 def main():
     # Example usage
-    R_values = [40, 80, 160, 320]
+    R_values = [pow(2, i) for i in range(5, 10)]
+    # R_values = [pow(2, i) for i in range(8, 14)]
     
     # Run simulation with only 3D
-    results = run_simulation(R_values, num_trials=1000, include_2d=False, plot=True)
+    results = run_simulation(R_values, num_trials=2000, include_2d=False, plot=True)
     # results = run_simulation(R_values, num_trials=1000, include_2d=True)
 
 if __name__ == "__main__":

@@ -71,3 +71,6 @@ Thumbs.db
 # Project specific
 lerw_cpp/build/
 lerw_py/__pycache__/
+.clangd
+compile_flags.txt
+test.py
