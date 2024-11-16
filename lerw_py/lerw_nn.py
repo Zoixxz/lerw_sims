@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import time
+import multiprocessing
 
 
 class AESRandom:
@@ -62,12 +63,13 @@ DIRECTIONS = {
 
 rng = AESRandom(get_random_bytes(32))
 
-class LERW:
+class LERW_NN:
     def __init__(self, L, dim=3, lattice='FCC', plot=False):
         self.L = L
         self.directions = DIRECTIONS[lattice][dim]
         self.dim = dim
         self.plot = plot
+        self.lattice = lattice
 
         if self.plot:
             # Initialize plotting
@@ -204,8 +206,19 @@ class LERW:
 
             curr_pos = next_pos
 
+def simulate_nn(L, num_trials, dim=3):
+    lerw = LERW_NN(L=L, dim=dim, lattice='FCC')
+
+    with multiprocessing.Pool() as pool:
+        lengths = pool.map(lerw.get_path_len, range(num_trials))
+        total_length = sum(lengths)
+        avg_length = total_length / num_trials
+    
+    print(f'\nAverage path length for L={L}, dim={dim}, lattice={lerw.lattice}: {avg_length}')
+    return avg_length
+
 if __name__ == '__main__':
-    lerw = LERW(100, 3, 'FCC', plot=True)
+    lerw = LERW_NN(100, 3, 'FCC', plot=True)
 
     start = time.time()
     total = 0
