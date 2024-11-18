@@ -1,29 +1,35 @@
 # long range correlation, everything is 1D for now
 
-from scipy.special import zeta
+from scipy.stats import zipf
 from scipy.constants import *
 import numpy as np
 import random
 import multiprocessing
-from functools import partial
+import itertools
+import bisect
 
 DIM = 1 # simulating on 1D
 
-def generate_random_r(Z, alpha):
-    p = random.random()
+def generate_random_r(alpha):
+    # p = random.uniform(0, 0.999999)
+    # print(p)
 
-    cdf = 0
-    r = 1
-    while True:
-        P_r = Z / pow(r, DIM + alpha)
-        cdf += P_r
+    # cdf = 0
+    # r = 1
+    # while True:
+    #     P_r = Z / pow(r, DIM + alpha)
+    #     cdf += P_r
 
-        if cdf >= p:
-            return r
+    #     if cdf >= p:
+    #         print(r)
+    #         break
+    #         # return r
         
-        r += 1
+    #     r += 1
 
-def simulate(L, alpha, Z):
+    return zipf.rvs(DIM + alpha)
+
+def simulate(L, alpha):
         path = []
         visited = {}
 
@@ -35,7 +41,7 @@ def simulate(L, alpha, Z):
         visited[curr_pos] = (0, curr_w)
 
         while True:
-            r = generate_random_r(Z, alpha)
+            r = generate_random_r(alpha)
             dir = random.choice([-1, 1])
 
             next_pos = curr_pos + dir * r
@@ -57,23 +63,60 @@ def simulate(L, alpha, Z):
             else:
                 visited[next_pos] = (len(path), curr_w)
                 path.append(next_pos)
-                if len(path) > 10000:
-                    print('path discarded')
-                    return -1
+                # if len(path) > 10000:
+                #     print('path discarded')
+                #     return -1
             
             curr_pos = next_pos
 
+# def simulate(L, alpha, Z):
+#         path = []
+#         visited = {}
+
+#         curr_pos = 0
+#         path.append(curr_pos)
+
+#         # store index in path and winding number
+#         visited[curr_pos] = 0
+
+#         while True:
+#             r = generate_random_r(Z, alpha)
+#             dir = random.choice([-1, 1])
+
+#             next_pos = curr_pos + dir * r
+
+#             if next_pos in visited:
+#                 # loop formed
+#                 index_in_path = visited[next_pos]
+#                 for pos in path[index_in_path + 1:]:
+#                     del visited[pos]
+#                 path = path[:index_in_path + 1]
+#             else:
+#                 visited[next_pos] = len(path)
+#                 path.append(next_pos)
+
+#             curr_pos = next_pos
+
+#             if abs(next_pos) >= L:
+#                 print(f'Completed a walk successfully with L = {L}, with path length {len(path)}')
+#                 return len(path)
+
+
 def simulate_lr_1d(L, alpha, num_trials):
     # find Z = normalization constant
-    cdf = zeta(DIM + alpha, 1)
-    Z = 1.0 / cdf
+    # cdf = zeta(DIM + alpha, 1)
+    # Z = 1.0 / cdf
 
+    # globals()['R'] = Zeta('R', DIM + alpha)
+
+    args = itertools.repeat((L, alpha), num_trials)
+
+    total_length = 0
     with multiprocessing.Pool() as pool:
-        lengths = pool.starmap(simulate, [(L, alpha, Z) for _ in range(num_trials)])
+        for length in pool.starmap(simulate, args):
+            if length > 0:
+                total_length += length
 
-    lengths = np.array(lengths)
-    valid_lengths = lengths[lengths > 0]
-    total_length = np.sum(valid_lengths)
     avg_length = total_length / num_trials
     
     print(f'\nAverage path length for L={L}: {avg_length}')
@@ -81,4 +124,4 @@ def simulate_lr_1d(L, alpha, num_trials):
     return avg_length
 
 if __name__ == '__main__':
-    simulate_lr_1d(L=8, alpha=4, num_trials=1000)
+    simulate_lr_1d(L=pow(2, 13), alpha=0.5, num_trials=1000)

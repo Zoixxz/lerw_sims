@@ -48,14 +48,14 @@ def plot_results(R_values, avg_lengths, dimension, D):
         import matplotlib.pyplot as plt
         plt.figure()
         # plt.title(f"LERW in {dimension}D")
-        plt.title('Hierarchical LERW')
+        plt.title('Long Range LERW')
         plt.loglog(R_values, avg_lengths, 'o-', label='Data')
         plt.loglog(R_values, 
                   np.exp(np.polyval([D, np.log(avg_lengths[0]) - D * np.log(R_values[0])], 
                   np.log(R_values))), '--', 
                   label=f'Fit: D={D:.6f}')
         plt.xlabel('R')
-        plt.ylabel('Average Length L')
+        plt.ylabel('Hierarchical L')
         plt.legend()
         plt.show()
     except ImportError:
@@ -154,6 +154,7 @@ def plot_results_with_errors(R_values, avg_lengths, dimension, results):
         plt.ylabel('Average Length L')
         plt.legend(loc='lower right')
         plt.grid(True, which="both", ls="-", alpha=0.2)
+        plt.savefig('temp_fig1.png')
         plt.show()
         
     except ImportError:
@@ -177,9 +178,9 @@ def run_simulation(R_values, num_trials=1000, plot=False, type='nn'):
         elif type == 'nn':
             avg_length = simulate_nn(L=R, num_trials=num_trials)
         elif type == 'lr1':
-            avg_length = simulate_lr_1d(L=R, alpha=1, num_trials=num_trials)
+            avg_length = simulate_lr_1d(L=R, alpha=0.5, num_trials=num_trials)
         elif type == 'hr':
-            avg_length = simulate_hr_L(L=R, alpha=0.5, num_trials=num_trials)
+            avg_length = simulate_hr_L(L=R, alpha=0.7, num_trials=num_trials)
         elif type == 'lr3':
             avg_length = simulate_lr_3d(L=R, alpha=0.5, num_trials=num_trials)
         results['3D']['avg_lengths'].append(avg_length)
@@ -236,12 +237,11 @@ def run_simulation(R_values, num_trials=1000, plot=False, type='nn'):
 @timer
 def main():
     # Example usage
-    # R_values = [pow(2, i) for i in range(5, 10)]
-    # R_values = [50, 100, 150, 200, 250]
-    R_values = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+    R_values = [pow(2, i) for i in range(7, 14)]
+    # R_values = [i for i in range(7, 14)]
 
     # Run simulation with only 3D
-    results = run_simulation(R_values, num_trials=10000, plot=True, type='lr3')
+    results = run_simulation(R_values, num_trials=20000, plot=True, type='hr')
     # results = run_simulation(R_values, num_trials=1000, include_2d=True)
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # long range hierarchical correlation, everything is 1D for now
 
-from scipy.special import zeta
+from scipy.stats import geom
 from scipy.constants import *
 import numpy as np
 import random
@@ -9,23 +9,28 @@ import itertools
 
 DIM = 1 # simulating on 1D
 
-def generate_random_i(L, alpha, Z):
-    p = random.random()
+def generate_random_i():
+    # p = random.uniform(0, 0.999999)
+    # Z = L ** (DIM + alpha) - 1
 
-    cdf = 0
-    i = 1
-    while True:
-        P_i = Z / pow(L, i * (DIM + alpha))
-        cdf += P_i
+    # cdf = 0
+    # i = 1
+    # while True:
+    #     P_i = Z / pow(L, i * (DIM + alpha))
+    #     cdf += P_i
 
-        if cdf >= p:
-            return i
+    #     if cdf >= p:
+    #         return i
         
-        i += 1
+    #     i += 1
 
-def get_next_pos(M, curr_pos, L, alpha, Z):
+    r = geom.rvs(p)
+    # print(r)
+    return r
+
+def get_next_pos(M, curr_pos, L):
     # get i
-    i = generate_random_i(L, alpha, Z)
+    i = generate_random_i()
     if i >= M:
         return -1
 
@@ -56,20 +61,20 @@ def get_next_pos(M, curr_pos, L, alpha, Z):
     return next_pos
 
 
-def simulate(M, L, alpha, Z):
+def simulate(M, L):
         path = []
         visited = {}
 
-        curr_pos = tuple([0])
+        curr_pos = (0,)
         path.append(curr_pos)
 
         # store index in path and winding number
         visited[curr_pos] = 0
 
         while True:
-            next_pos = get_next_pos(M, curr_pos, L, alpha, Z)
+            next_pos = get_next_pos(M, curr_pos, L)
             if next_pos == -1:
-                print(f'Completed a walk successfuly with L = {L}, with path length {len(path)}')
+                print(f'Completed a walk successfuly with L = {L}, M = {M}, with path length {len(path)}')
                 return len(path)
             
             next_pos = tuple(next_pos)
@@ -93,10 +98,12 @@ def simulate(M, L, alpha, Z):
 
 def simulate_hr_L(L, alpha, num_trials):
     # find Z = normalization constant
-    M = 4
-    Z = pow(L, DIM + alpha) - 1
+    M = 2
+    # Z = pow(L, DIM + alpha) - 1
 
-    args = itertools.repeat((M, L, alpha, Z), num_trials)
+    globals()['p'] = 1 - 1.0 / (L ** (DIM + alpha))
+
+    args = itertools.repeat((M, L), num_trials)
 
     total_length = 0
     with multiprocessing.Pool() as pool:
@@ -112,20 +119,22 @@ def simulate_hr_L(L, alpha, num_trials):
 def simulate_hr_M(M, alpha, num_trials):
     # find Z = normalization constant
     L = 2
-    Z = pow(L, DIM + alpha) - 1
+    # Z = pow(L, DIM + alpha) - 1
 
-    # simulate(M=7, L=V, alpha=alpha, Z=Z)
+    globals()['p'] = 1 - 1.0 / (L ** (DIM + alpha))
 
+    args = itertools.repeat((M, L), num_trials)
+
+    total_length = 0
     with multiprocessing.Pool() as pool:
-        lengths = pool.starmap(simulate, [(M, L, alpha, Z) for _ in range(num_trials)])
-
-    lengths = np.array(lengths)
-    valid_lengths = lengths[lengths > 0]
-    total_length = np.sum(valid_lengths)
+        for length in pool.starmap(simulate, args):
+            if length > 0:
+                total_length += length
+    
     avg_length = total_length / num_trials
     
-    print(f'\nAverage path length for M={M}: {avg_length}')
+    print(f'\nAverage path length for L={L}: {avg_length}')
     return avg_length
 
 if __name__ == '__main__':
-    simulate_hr_L(L=25, alpha=0.5, num_trials=100)
+    simulate_hr_M(M=13, alpha=0.2, num_trials=1000)
