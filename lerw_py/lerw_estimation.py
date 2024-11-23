@@ -127,7 +127,7 @@ def plot_results_with_errors(R_values, avg_lengths, dimension, results):
         import matplotlib.pyplot as plt
         
         plt.figure(figsize=(10, 6))
-        plt.title(f"Hierarchical LERW")
+        plt.title(f"Long Range LERW")
         
         # Data points
         plt.loglog(R_values, avg_lengths, 'o', label='Data')
@@ -178,7 +178,7 @@ def run_simulation(R_values, num_trials=1000, plot=False, type='nn'):
         elif type == 'nn':
             avg_length = simulate_nn(L=R, num_trials=num_trials)
         elif type == 'lr1':
-            avg_length = simulate_lr_1d(L=R, alpha=0.5, num_trials=num_trials)
+            avg_length = simulate_lr_1d(L=R, alpha=0.2, num_trials=num_trials)
         elif type == 'hr':
             avg_length = simulate_hr_L(L=R, alpha=0.7, num_trials=num_trials)
         elif type == 'lr3':
@@ -237,11 +237,11 @@ def run_simulation(R_values, num_trials=1000, plot=False, type='nn'):
 @timer
 def main():
     # Example usage
-    R_values = [pow(2, i) for i in range(7, 14)]
+    R_values = [pow(2, i) for i in range(20, 30)]
     # R_values = [i for i in range(7, 14)]
 
     # Run simulation with only 3D
-    results = run_simulation(R_values, num_trials=20000, plot=True, type='hr')
+    results = run_simulation(R_values, num_trials=10000000, plot=True, type='lr1')
     # results = run_simulation(R_values, num_trials=1000, include_2d=True)
 
 if __name__ == "__main__":
