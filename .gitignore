@@ -74,3 +74,8 @@ lerw_py/__pycache__/
 .clangd
 compile_flags.txt
 test.py
+
+results.txt
+results1.txt
+valid_nums.txt
+valid_nums_old.txt
