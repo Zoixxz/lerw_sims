@@ -1,29 +1,41 @@
-# from mpmath import exp, inf, nsum
+# import math
 
-# d_a = 3.5
+# def sum_of_two_squares(n):
+#     if n == 1:
+#         return True
 
-# def e1(n):
-#     return 1.0 / pow(n, d_a)
+#     while n % 2 == 0:
+#         n = n // 2
 
-# def e2(a):
-#     def e3(b):
-#         y = pow(4, a) * (8*b + 7)
-#         return 1.0 / pow(y, d_a)
-#     return nsum(e3, [0, inf])
+#     for p in range(3, int(math.sqrt(n)) + 1, 4):
+#         if n % p == 0:
+#             count = 0
+#             while n % p == 0:
+#                 n //= p
+#                 count += 1
+#             if count % 2 != 0:
+#                 return False
+#     if n > 1 and n % 4 == 3:
+#         return False
 
-# sum1 = nsum(e1, [1, inf])
-# sum2 = nsum(e2, [0, inf])
+#     return True
 
-# print(sum1 - sum2)
+# x = 1
+# while True:
+#     if x % 10000 == 0:
+#         print(math.isqrt(x))
+#     if sum_of_two_squares(x) and math.isqrt(x) > (2**15):
+#         break
+#     x += 1
 
-# import bisect
-# import numpy as np
+# print(x)
 
-# a = np.array([0.5, 0.7])
-# print(1 + bisect.bisect_left(a, 0.6))
+with open('/home/epsilon/Code/Research/Long_Range_Simulations/lerw_sims/lerw_2d/valid_nums.txt', 'r') as file:
+        lines = file.readlines()
 
-from scipy.stats import geom
+# Retain only the first `keep_lines` lines
+truncated_lines = lines[:48168466]
 
-p = 1 - 1.0 / (8192 ** (1.5))
-r = geom.rvs(p)
-print(r)
+# Write the truncated content back to the file
+with open('/home/epsilon/Code/Research/Long_Range_Simulations/lerw_sims/lerw_2d/valid_nums2.txt', 'w') as file:
+    file.writelines(truncated_lines)

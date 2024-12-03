@@ -9,24 +9,23 @@ import itertools
 
 DIM = 1 # simulating on 1D
 
-def generate_random_i():
-    # p = random.uniform(0, 0.999999)
-    # Z = L ** (DIM + alpha) - 1
+def generate_random_i(L, Z=Z):
+    p = random.uniform(0, 0.99999)
 
-    # cdf = 0
-    # i = 1
-    # while True:
-    #     P_i = Z / pow(L, i * (DIM + alpha))
-    #     cdf += P_i
+    cdf = 0
+    i = 1
+    while True:
+        P_i = Z / pow(L, i * (DIM + alpha))
+        cdf += P_i
 
-    #     if cdf >= p:
-    #         return i
+        if cdf >= p:
+            return i
         
-    #     i += 1
+        i += 1
 
-    r = geom.rvs(p)
+    # r = geom.rvs(p)
     # print(r)
-    return r
+    # return r
 
 def get_next_pos(M, curr_pos, L):
     # get i
@@ -102,6 +101,7 @@ def simulate_hr_L(L, alpha, num_trials):
     # Z = pow(L, DIM + alpha) - 1
 
     globals()['p'] = 1 - 1.0 / (L ** (DIM + alpha))
+    globals()['Z'] = L ** (DIM + alpha) - 1
 
     args = itertools.repeat((M, L), num_trials)
 
