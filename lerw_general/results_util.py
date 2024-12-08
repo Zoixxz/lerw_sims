@@ -3,22 +3,32 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import warnings
 
+import matplotlib.pyplot as plt
+
 def basic_2d_plot(x_vals, y_vals):
+    plt.figure(figsize=(12, 7))
     plt.plot(x_vals, y_vals, marker='o', linestyle='-', color='b', label='Data')
 
     # Adding labels and title
     plt.xlabel('alpha')
     plt.ylabel('D')
-    plt.title('D-alpha graph')
+    plt.title('D-alpha graph 3D')
+
+    # Setting axis limits and ticks
+    plt.xlim(0, 3)
+    plt.ylim(0, 2)
+    plt.xticks([i * 0.1 for i in range(0, 32)])  # From 0 to 3 with 0.1 steps
+    plt.yticks([i * 0.05 for i in range(0, 41)])  # From 0 to 1.3 with 0.05 steps
 
     # Optional: Add a grid and legend
     plt.grid(True)
     plt.legend()
 
-    # Display the plot
+    # Save and display the plot
     plt.savefig('d-alpha-fig_temp.png')
     plt.show()
     plt.close()
+
 
 def estimate_exponent_with_errors(L_values, avg_lengths, n_bootstrap=1000):
     """
@@ -118,9 +128,8 @@ def plot_results_with_errors(L_values, avg_lengths, results, alpha=None):
     # plt.show()
     plt.close()
 
-
 if __name__ == '__main__':
-    f = open('/home/epsilon/Code/Research/Long_Range_Simulations/lerw_sims/lerw_2d/results.txt', 'r')
+    f = open('/home/epsilon/Code/Research/Long_Range_Simulations/lerw_sims/lerw_long_range/results_3d_test.txt', 'r')
 
     len_data = {}
 
