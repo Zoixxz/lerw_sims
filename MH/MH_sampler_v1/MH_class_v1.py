@@ -51,7 +51,7 @@ class MHS:
         # while u == 0:
         #    u = np.random.rand()
         #
-        # r = u ** (-1/self.alpha)
+        # r = u ** (-1/self.alpha)  # this is a pareto distribution
         # delta = list(np.round(r * point).astype(int))
 
         delta = tuple(dir * coord for dir, coord in zip(directions, coord_steps))
