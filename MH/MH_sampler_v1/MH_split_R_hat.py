@@ -35,7 +35,7 @@ def compute_acf(x: NDArray[np.float64], nlags: int = 40) -> NDArray[np.float64]:
 
 def fold_values(x: NDArray[np.float64]) -> NDArray[np.float64]:
     """mean or median? Vehtari et. al. use median (why? is it becaue of stability under outliers?)"""
-    m_x = np.median(x)  # alternatively why not use np.mean()?
+    m_x = np.median(x)  # alternatively why not use np.mean()? 
     return np.abs(x - m_x)
 
 def equalize_chain_lengths(chains: Union[List[NDArray[np.float64]],
@@ -132,18 +132,17 @@ def improved_rhat(chains: Union[List[NDArray[np.float64]], NDArray[np.float64]],
     for dim in range(n_dims):
         chains_dim = chains[:, :, dim]
         
-        # Split chains
+        # split chains
         split_chains = np.vstack([chains_dim[:, :n_samples//2], 
                                 chains_dim[:, n_samples//2:n_samples//2*2]])
         
-        # Rank normalize
+        # rank normalize
         normalized_chains = np.array([rank_normalize(chain) for chain in split_chains])
         
-        # Fold if bounded
         if is_bounded:
             normalized_chains = np.array([fold_values(chain) for chain in normalized_chains])
         
-        # Calculate between and within-chain variances
+        # between and within-chain variances
         chain_means = np.mean(normalized_chains, axis=1)
         chain_vars = np.var(normalized_chains, axis=1, ddof=1)
         
@@ -151,8 +150,8 @@ def improved_rhat(chains: Union[List[NDArray[np.float64]], NDArray[np.float64]],
         W = np.mean(chain_vars)  # within-chain variance
         B = np.var(chain_means, ddof=1) * normalized_chains.shape[1]  # between-chain variance
         
-        # Calculate variance estimate and R-hat
+        # variance estimate and R-hat
         var_estimate = (normalized_chains.shape[1] - 1) / normalized_chains.shape[1] * W + B / normalized_chains.shape[1]
         rhat_values.append(np.sqrt(var_estimate / W))
     
-    return np.max(rhat_values)  # Return maximum R-hat across dimensions
+    return np.max(rhat_values)  
